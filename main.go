@@ -87,9 +87,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func inTimeSpan(check time.Time) bool {
-  start,_ := time.Parse(time.RFC822, "01 Oct 16 00:00 UTC")
-  end,_   := time.Parse(time.RFC822, "31 Oct 16 23:59 UTC")
-  return check.After(start) && check.Before(end)
+	return check.Month() == time.October
 }
 
 func portNumber() string {
