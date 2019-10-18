@@ -58,7 +58,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	var s Submissions
 	ghUser := r.URL.Query().Get(":ghUser")
-	_, _, err := ghClient.Users.Get(ghUser)
+	_, _, err := ghClient.Users.Get(oauth2.NoContext, ghUser)
 	if err != nil {
 		resp, _ := json.Marshal(map[string]string{"error": "User not found"})
 		w.WriteHeader(http.StatusNotFound)
@@ -66,7 +66,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	opt := &github.ListOptions{PerPage: 100}
-	events, _, err := ghClient.Activity.ListEventsPerformedByUser(ghUser, true, opt)
+	events, _, err := ghClient.Activity.ListEventsPerformedByUser(oauth2.NoContext, ghUser, true, opt)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -75,7 +75,9 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		if *event.Type == "PullRequestEvent" && inTimeSpan(*event.CreatedAt) {
 			pull_request := event.Payload().(*github.PullRequestEvent).PullRequest
 			submission := Submission{ID: *pull_request.Number, Title: *pull_request.Title, Login: *pull_request.User.Login, URL: *pull_request.HTMLURL, State: *pull_request.State, RepoName: repo_name, CreatedAt: *pull_request.CreatedAt}
-			s.PullRequests = append(s.PullRequests, submission)
+			if submission.State == "open" {
+				s.PullRequests = append(s.PullRequests, submission)
+			}
 		}
 	}
 	s.Total = len(s.PullRequests)
@@ -85,9 +87,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func inTimeSpan(check time.Time) bool {
-	start, _ := time.Parse(time.RFC822, "01 Oct 16 00:00 UTC")
-	end, _ := time.Parse(time.RFC822, "31 Oct 16 23:59 UTC")
-	return check.After(start) && check.Before(end)
+	return check.Month() == time.October
 }
 
 func portNumber() string {
