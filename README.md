@@ -2,7 +2,7 @@
 Check your Hacktoberfest progress
 
 ```
-  curl http://localhost:5000/<GITHUB_USER_NAME>
+  curl http://localhost:5000/api/<GITHUB_USER_NAME>
 ```
 
 ```
@@ -21,3 +21,14 @@ Check your Hacktoberfest progress
     ]
   }
 ```
+
+# Frontend
+A web GUI frontend is served from the static directory. 
+
+To set this up you have to first install dependencies with:
+```npm install```
+
+Then you configure where your API endpoint is in the `static/.env` file.  
+
+After that you build the Vue application with the following command
+```npm run build```

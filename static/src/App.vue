@@ -4,6 +4,14 @@
     </div>
 </template>
 
+<script>
+export default {
+    created() {
+        document.title = "Hacktoberfest Hackathon Leaderboard"
+    }
+}
+</script>
+
 <style>
 #app {
     font-family: "Avenir", Helvetica, Arial, sans-serif;
